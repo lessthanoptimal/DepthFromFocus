@@ -1,0 +1,54 @@
+plugins {
+    id 'java'
+}
+
+group 'peterabeles'
+version '1.0-SNAPSHOT'
+
+sourceCompatibility = 1.8
+
+ext.BOOFCV_VERSION = '0.31'
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+
+    maven {
+        url = "https://oss.sonatype.org/content/repositories/snapshots/"
+    }
+}
+// Determine which architecture it is being bult on so that it knows what to name the classifier as.
+import static org.apache.tools.ant.taskdefs.condition.Os.*
+String osName = org.gradle.internal.os.OperatingSystem.current().getName()
+String osVersion = org.gradle.internal.os.OperatingSystem.current().getVersion()
+println "  Platform:        $osName $osVersion $OS_ARCH"
+
+// yes it assumes x86. Not sure
+if (org.gradle.internal.os.OperatingSystem.current().isLinux()) {
+    ext.platform = "linux-${OS_ARCH}"
+} else if (org.gradle.internal.os.OperatingSystem.current().isUnix()) {
+    ext.platform = "unix-${OS_ARCH}"
+} else if (org.gradle.internal.os.OperatingSystem.current().isWindows()) {
+    ext.platform = "windows-${OS_ARCH}"
+} else if (org.gradle.internal.os.OperatingSystem.current().isMacOsX()) {
+    ext.platform = "macos-${OS_ARCH}"
+} else {
+    ext.platform = "unknown_${cpuType}_$jvmBits"
+}
+
+dependencies {
+
+    compile group: 'libwebcam', name: "libwebcam-jni", version: '1.0-SNAPSHOT'
+    compile group: 'libwebcam', name: "libwebcam-jni", version: '1.0-SNAPSHOT', classifier: platform
+
+    ['core','swing'].each { String a ->
+        compile('org.boofcv:boofcv-' + a + ":"+BOOFCV_VERSION)
+    }
+    
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+}
+
+task wrapper(type: Wrapper) {
+    distributionType = Wrapper.DistributionType.BIN
+    gradleVersion = '4.10.2'
+}

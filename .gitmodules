@@ -1,0 +1,3 @@
+[submodule "webcam"]
+	path = webcam
+	url = https://github.com/lessthanoptimal/libwebcam.git
